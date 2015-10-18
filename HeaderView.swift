@@ -9,23 +9,26 @@ import UIKit
 
 @IBDesignable
 class HeaderView: UIView {
-    @IBInspectable var blurStyle: UIBlurEffectStyle = .Light
-    @IBInspectable var image: UIImage?
-
-    // Only override drawRect: if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func drawRect(rect: CGRect) {
-        // Drawing code
-        self.translatesAutoresizingMaskIntoConstraints = false
-        self.clipsToBounds = true
-        
+    
+    @IBInspectable var blurStyle: UIBlurEffectStyle = .Light {
+        didSet {
+            updateHeaderBackground()
+        }
+    }
+    
+    @IBInspectable var image: UIImage? {
+        didSet {
+            updateHeaderBackground()
+        }
+    }
+    
+    private lazy var headerBackground: UIImageView! = {
         let headerBackground = UIImageView()
         headerBackground.translatesAutoresizingMaskIntoConstraints = true
         headerBackground.autoresizingMask = [.FlexibleWidth, .FlexibleHeight]
         headerBackground.image = self.image
         headerBackground.contentMode = .ScaleAspectFill
         headerBackground.frame = self.bounds
-        self.addSubview(headerBackground)
         
         let visualEffectView = UIVisualEffectView(effect: UIBlurEffect(style: self.blurStyle))
         visualEffectView.translatesAutoresizingMaskIntoConstraints = true
@@ -35,5 +38,28 @@ class HeaderView: UIView {
             visualEffectView.frame = headerBackground.bounds
             headerBackground.addSubview(visualEffectView)
         }
+        
+        return headerBackground
+    }()
+    
+    // whenever a property that effects the header view changes, call this
+    //
+    private func updateHeaderBackground() {
+        headerBackground.removeFromSuperview()
+        headerBackground = nil
+        addSubview(headerBackground)
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        translatesAutoresizingMaskIntoConstraints = false
+        clipsToBounds = true
+        
+        addSubview(headerBackground)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
